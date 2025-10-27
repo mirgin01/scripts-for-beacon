@@ -3,4 +3,6 @@
 3. Update beacon ri tools v2 repo 
 4. Modify conf/conf.py : add correct reference genome and datasetID
 5. Modify /home/mireia/Bioinfo/Beacon/beacon2-ri-tools-v2/pipelines/default/templates/populations.json --> Use fill-in-populations.json
-6. Convert VCF to BFF : docker exec -it ri-tools python genomicVariations_vcf.py
+6. Empty mongo: with mongo-express-1 up go to http://localhost:8081 (credencials admin and pass) del beacon --> genomicVariations
+7. Convert VCF to BFF : docker exec -it ri-tools python genomicVariations_vcf.py
+8. Export BFF from mongo: docker exec ri-tools-mongo mongoexport --jsonArray --uri "mongodb://root:example@127.0.0.1:27017/beacon?authSource=admin" --collection genomicVariations > genomicVariations-NAME.json
