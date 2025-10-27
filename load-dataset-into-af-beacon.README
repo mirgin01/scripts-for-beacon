@@ -1,0 +1,6 @@
+1. Reprocess the dataset with Hail pipeline: run QC on samples, variants and genotypes and calculates the AF stratified by sex and ancestry
+2. Delete beacon ri tools container in docker
+3. Update beacon ri tools v2 repo 
+4. Modify conf/conf.py : add correct reference genome and datasetID
+5. Modify /home/mireia/Bioinfo/Beacon/beacon2-ri-tools-v2/pipelines/default/templates/populations.json --> Use fill-in-populations.json
+6. Convert VCF to BFF : docker exec -it ri-tools python genomicVariations_vcf.py
