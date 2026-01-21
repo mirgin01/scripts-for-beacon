@@ -3,13 +3,11 @@
 # between each VCF conversion the mongoDB is emptied. 1 VCF - 1 BFF relation
 
 #!/bin/bash
-
-# Configuración de rutas
 SOURCE_DIR="/bio-scratch/mireia/beacon-datasets/gnomAD.v4/trying-loop"
 DEST_DIR="/bio-scratch/mireia/beacon2_RI_Tools_v2/beacon-data-tools/files/vcf/files_to_read"
 OUTPUT_DIR="/bio-scratch/mireia//beacon-datasets/gnomAD.v4/BFFs/"  # Ajusta esta ruta según necesites
 
-# Crear directorio de salida si no existe
+# Create output directory if doesnt exist
 mkdir -p "$OUTPUT_DIR"
 
 # Log file
@@ -18,23 +16,23 @@ LOG_FILE="$OUTPUT_DIR/conversion_log_$(date +%Y%m%d_%H%M%S).txt"
 echo "Starting conversion from VCF to BFF - $(date)" | tee "$LOG_FILE"
 echo "=============================================" | tee -a "$LOG_FILE"
 
-# Bucle para cromosomas 1-22
+# Loop for chr 1-22
 for CHR in {1..22}; do
     echo "" | tee -a "$LOG_FILE"
     echo "Processing chromosome $CHR - $(date)" | tee -a "$LOG_FILE"
     echo "-------------------------------------------" | tee -a "$LOG_FILE"
    
-    # Nombre del archivo VCF
+    # Move VCF
     VCF_FILE="gnomad.joint.v4.1.sites.chr${CHR}._nhet_subset.vcf.gz"
     SOURCE_PATH="${SOURCE_DIR}/${VCF_FILE}"
     
-    # Verificar que el archivo existe
+    # Check the file exists
     if [ ! -f "$SOURCE_PATH" ]; then
         echo "ERROR: File not found: $SOURCE_PATH" | tee -a "$LOG_FILE"
         continue
     fi
     
-    # 1. Mover archivo
+    # 1. Move file
     echo "1. Moving file $VCF_FILE..." | tee -a "$LOG_FILE"
     mv "$SOURCE_PATH" "$DEST_DIR/" 2>&1 | tee -a "$LOG_FILE"
     if [ $? -ne 0 ]; then
@@ -42,7 +40,7 @@ for CHR in {1..22}; do
         continue
     fi
     
-    # 2. Ejecutar el contenedor para procesar el VCF
+    # 2. Convert to BFF
     echo "2. Executing genomicVariations_vcf.py..." | tee -a "$LOG_FILE"
     docker exec -it ri-tools python genomicVariations_vcf.py 2>&1 | tee -a "$LOG_FILE"
     if [ $? -ne 0 ]; then
@@ -52,7 +50,7 @@ for CHR in {1..22}; do
         continue
     fi
     
-    # 3. Exportar a JSON
+    # 3. Export JSON
     OUTPUT_JSON="$OUTPUT_DIR/genomicVariations_gnomadv4.chr${CHR}.json"
     echo "3. Export to JSON: $OUTPUT_JSON..." | tee -a "$LOG_FILE"
     docker exec ri-tools-mongo mongoexport --jsonArray \
@@ -65,7 +63,7 @@ for CHR in {1..22}; do
         echo "Export complete: $(wc -l < "$OUTPUT_JSON"). N of lines:" | tee -a "$LOG_FILE"
     fi
     
-    # 4. Limpiar la base de datos MongoDB
+    # 4. Clean MongoDB
     echo "4. Cleaning MongoDB..." | tee -a "$LOG_FILE"
     docker exec -i ri-tools-mongo mongosh <<EOF 2>&1 | tee -a "$LOG_FILE"
 use admin
