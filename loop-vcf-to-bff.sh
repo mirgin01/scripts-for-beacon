@@ -78,7 +78,7 @@ EOF
     sed -i '1d;$d' "$OUTPUT_JSON"
     echo "Cleanup complete. Final file: $(wc -l < "$OUTPUT_JSON") lines" | tee -a "$LOG_FILE"
 
-    # Devolver el archivo a su ubicación original (opcional)
+    # Move the VCF to its original directory
     echo "5. Move VCF to original path..." | tee -a "$LOG_FILE"
     mv "${DEST_DIR}/${VCF_FILE}" "$SOURCE_PATH" 2>&1 | tee -a "$LOG_FILE"
     
